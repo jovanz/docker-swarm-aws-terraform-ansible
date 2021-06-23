@@ -1,0 +1,19 @@
+variable "aws_region" {
+  description = "AWS region on which we will setup the swarm cluster"
+  default = "eu-central-1"
+}
+
+variable "ami" {
+  description = "Amazon Linux AMI, Ubuntu Server 18.04 LTS"
+  default = "ami-0b1deee75235aa4bb"
+}
+
+variable "instance_type" {
+  description = "Instance type"
+  default = "t2.micro"
+}
+
+variable "key_path" {
+  description = "SSH Public Key path"
+  default = "/path-to-keyfile/docker-key.pem"
+}
