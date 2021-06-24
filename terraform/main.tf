@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 0.12"
+  required_version = ">= 0.14"
 }
 
 # AWS Provider
@@ -33,6 +33,31 @@ resource "aws_security_group" "default" {
     protocol = "icmp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+}
+
+# Subnet
+resource "aws_default_subnet" "default_az1" {
+  availability_zone = "eu-central-1a"
+
+  tags = {
+    Name = "Default subnet for eu-central-1a"
+  }
+}
+
+# EFS
+resource "aws_efs_file_system" "efs" {
+  creation_token = "efs"
+  performance_mode = "generalPurpose"
+  throughput_mode = "bursting"
+  tags = {
+    Name = "EfsExample"
+  }
+}
+
+resource "aws_efs_mount_target" "efs-mount" {
+  file_system_id  = "${aws_efs_file_system.efs.id}"
+  subnet_id       = "${aws_default_subnet.default_az1.id}"
+  security_groups = ["${aws_security_group.default.id}"]
 }
 
 # EC2 Instances

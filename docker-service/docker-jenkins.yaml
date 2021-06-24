@@ -1,0 +1,30 @@
+version: "3.2"
+services:
+  jenkins-master:
+    image: jenkins/jenkins:2.289.1-lts-slim
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+      restart_policy:
+        condition: on-failure
+    ports:
+      - "8080:8080"
+    volumes:
+      - "jenkins_home:/var/jenkins_home/"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - infrastructure
+
+volumes:
+  jenkins_home:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=172.31.25.180,nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2
+      device: 172.31.25.180:/docker/volumes/jenkins_home/
+
+networks:
+  infrastructure:

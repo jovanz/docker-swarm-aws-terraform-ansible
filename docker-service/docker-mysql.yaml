@@ -1,0 +1,25 @@
+version: "3.2"
+services:
+  mysql-master:
+    image: mysql:8.0
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    ports:
+      - "8080:8080"
+    volumes:
+      - "mysql_home:/var/lib/mysql"
+    networks:
+      - infrastructure
+
+volumes:
+  mysql_home:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=172.31.25.180,nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2
+      device: 172.31.25.180:/docker/volumes/mysql_home/
+
+networks:
+  infrastructure:

@@ -11,7 +11,7 @@
 
     - name: Install required system packages
       apt: name={{ item }} state=latest update_cache=yes
-      loop: [ 'apt-transport-https', 'ca-certificates', 'curl']
+      loop: [ 'git', 'apt-transport-https', 'ca-certificates', 'curl', 'nfs-common']
 
     - name: Add Docker GPG apt Key
       apt_key:
@@ -32,3 +32,23 @@
         name: ubuntu
         append: yes
         groups: docker
+
+    - name: Ensure mount directory exists.
+      file:
+        path: /efs
+        state: directory
+        mode: 0755
+
+    - name: Ensure EFS volume is mounted.
+      mount:
+        name: /efs
+        src: 172.31.25.180:/
+        fstype: nfs4
+        opts: nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport
+        state: mounted
+
+    # Print the contents of the mount to the log.
+    - command: ls -lah /efs
+      register: efs_contents
+    - debug: var=efs_contents
+
