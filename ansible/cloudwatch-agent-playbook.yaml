@@ -18,6 +18,13 @@
         sudo: true
         when: amazon-cloudwatch-agent_check_deb.rc == 1
 
+      # sudo usermod -aG adm cwagent
+      - name: Add cwagent user to adm group
+        user:
+          name: cwagent
+          append: yes
+          groups: adm
+
       - name: Copy AWS CloudWatch configuratio file
         copy:
           src: "{{ playbook_dir }}/amazon-cloudwatch-agent.json"
