@@ -146,5 +146,6 @@ Insert folowing configuration in /home/ubuntu/amazon-cloudwatch-agent.json file
 ```
 
 and run folowing command to start CloudWatch agent.
+```bash
 sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/home/ubuntu/amazon-cloudwatch-agent.json
-
+```

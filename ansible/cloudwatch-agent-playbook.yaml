@@ -1,0 +1,38 @@
+#################################################
+# Playbooks: AWS CloudWatch Agent
+#################################################
+---
+  - name: AWS CloudWatch Agent
+    hosts: all
+    gather_facts: False
+    remote_user: ubuntu
+    become: yes
+    tasks:
+      - name: Download CloudWatch agent debian package
+        get_url: url="https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb"
+        dest="/home/ubuntu/amazon-cloudwatch-agent.deb"
+        when: amazon-cloudwatch-agent_check_deb.rc == 1
+
+      - name: Install CloudWatch agent
+        apt: deb="/home/ubuntu/amazon-cloudwatch-agent.deb"
+        sudo: true
+        when: amazon-cloudwatch-agent_check_deb.rc == 1
+
+      - name: Copy AWS CloudWatch configuratio file
+        copy:
+          src: "{{ playbook_dir }}/amazon-cloudwatch-agent.json"
+          dst: "/home/ubuntu/amazon-cloudwatch-agent.json"
+          owner: ubuntu
+          group: ubuntu
+
+      - name: Verify AWS CloudWatch Agent Config for EC2
+        command: /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/home/ubuntu/amazon-cloudwatch-agent.json
+        become: yes
+
+      - name: start and enable cwa-agent service
+        service: name=amazon-cloudwatch-agent state=started enabled=yes
+        when: ansible_service_mgr != 'systemd'
+
+      - name: Start and enable cwa-agent systemd service
+        systemd: name=amazon-cloudwatch-agent state=started enabled=yes daemon_reload=yes
+        when: ansible_service_mgr == 'systemd'
