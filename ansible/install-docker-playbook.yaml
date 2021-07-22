@@ -23,6 +23,17 @@
         repo: deb https://download.docker.com/linux/ubuntu bionic stable
         state: present
 
+    - name: Ensures /etc/docker dir exists
+      file:
+        path: /etc/docker
+        state: directory
+        mode: 0755
+
+    - name: Copy Docker deamon json config file
+      copy:
+        src: "{{ playbook_dir }}/daemon.json"
+        dest: "/etc/docker/daemon.json"
+
     - name: Update apt and install docker-ce
       apt: update_cache=yes name=docker-ce state=latest
 
@@ -42,7 +53,7 @@
     - name: Ensure EFS volume is mounted.
       mount:
         name: /efs
-        src: 172.31.26.98:/
+        src: 172.31.24.23:/
         fstype: nfs4
         opts: nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport
         state: mounted

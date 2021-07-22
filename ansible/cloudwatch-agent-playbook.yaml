@@ -10,7 +10,7 @@
     tasks:
       - name: Download CloudWatch agent debian package
         get_url: url="https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb"
-        dest="/home/ubuntu/amazon-cloudwatch-agent.deb"
+        dest: "/home/ubuntu/amazon-cloudwatch-agent.deb"
         when: amazon-cloudwatch-agent_check_deb.rc == 1
 
       - name: Install CloudWatch agent
@@ -28,7 +28,7 @@
       - name: Copy AWS CloudWatch configuratio file
         copy:
           src: "{{ playbook_dir }}/amazon-cloudwatch-agent.json"
-          dst: "/home/ubuntu/amazon-cloudwatch-agent.json"
+          dest: "/home/ubuntu/amazon-cloudwatch-agent.json"
           owner: ubuntu
           group: ubuntu
 

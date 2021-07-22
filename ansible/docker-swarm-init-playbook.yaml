@@ -6,7 +6,7 @@
     become: yes
     tasks:
       - name: Swarm Init
-        command: docker swarm init --advertise-addr {{ inventory_hostname }}
+        command: docker swarm init --advertise-addr {{ hostvars[inventory_hostname]['groups']['masters_priv'][0] }} --dispatcher-heartbeat 15s
 
       - name: Get Worker Token
         command: docker swarm join-token worker -q

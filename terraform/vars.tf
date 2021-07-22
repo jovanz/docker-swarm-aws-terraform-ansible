@@ -1,3 +1,7 @@
+##################################################################################
+# VARIABLES
+##################################################################################
+
 variable "aws_region" {
   description = "AWS region on which we will setup the swarm cluster"
   default = "eu-central-1"
@@ -15,5 +19,5 @@ variable "instance_type" {
 
 variable "key_path" {
   description = "SSH Public Key path"
-  default = "/path-to-keyfile/docker-key.pem"
+  default = "~/.ssh/id_rsa.pub"
 }

@@ -1,4 +1,7 @@
-### output.tf
+##################################################################################
+# OUTPUT
+##################################################################################
+
 output "master_public_ip" {
     description = "Public IP address of the master"
     value = ["${aws_instance.master.public_ip}"]
