@@ -2,77 +2,80 @@
 # Playbooks: Docker Install
 #################################################
 ---
-- hosts: all
+- hosts: managers,workers
   remote_user: ubuntu
   become: true
   tasks:
-    - name: Install aptitude using apt
-      apt: name=aptitude state=latest update_cache=yes force_apt_get=yes
+    - name: Install apt packages
+      ansible.builtin.apt:
+        pkg: "{{ item }}"
+        state: present
+        update_cache: true
+        autoclean: true
+        cache_valid_time: 3600
+      become: true
+      with_items:
+        - aptitude
+        - git
+        - apt-transport-https
+        - ca-certificates
+        - curl
 
-    - name: Install required system packages
-      apt: name={{ item }} state=latest update_cache=yes
-      loop: [ 'git', 'apt-transport-https', 'ca-certificates', 'curl', 'nfs-common']
+    - name: Set timezone to Europe/Belgrade
+      community.general.timezone:
+        name: Europe/Belgrade
+
+    - name: Remove old docker packages
+      ansible.builtin.apt:
+        pkg: "{{ item }}"
+        state: absent
+        update_cache: true
+        cache_valid_time: 3600
+      become: true
+      with_items:
+        - docker
+        - docker-engine
+        - docker.io
+        - containerd
+        - runc
 
     - name: Add Docker GPG apt Key
-      apt_key:
+      ansible.builtin.apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
         state: present
 
     - name: Add Docker Repository
-      apt_repository:
+      ansible.builtin.apt_repository:
         repo: deb https://download.docker.com/linux/ubuntu bionic stable
         state: present
 
     - name: Ensures /etc/docker dir exists
-      file:
+      ansible.builtin.file:
         path: /etc/docker
         state: directory
         mode: 0755
 
     - name: Copy Docker deamon json config file
-      copy:
+      ansible.builtin.copy:
         src: "{{ playbook_dir }}/daemon.json"
         dest: "/etc/docker/daemon.json"
+        mode: 0644
 
-    - name: Update apt and install docker-ce
-      apt: update_cache=yes name=docker-ce state=latest
+    - name: Install docker-ce packages
+      ansible.builtin.apt:
+        pkg: "{{ item }}"
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+      become: true
+      with_items:
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
 
       # sudo usermod -aG docker root
     - name: Add remote ubuntu user to docker group
-      user:
+      ansible.builtin.user:
         name: ubuntu
-        append: yes
+        append: true
         groups: docker
-
-    - name: Ensure mount directory exists.
-      file:
-        path: /efs
-        state: directory
-        mode: 0755
-
-    - name: Ensure EFS volume is mounted.
-      mount:
-        name: /efs
-        src: 172.31.24.23:/
-        fstype: nfs4
-        opts: nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport
-        state: mounted
-
-    # Print the contents of the mount to the log.
-    - command: ls -lah /efs
-      register: efs_contents
-    - debug: var=efs_contents
-
-    # - name: Ensure /var/lib/docker/volumes directory exists.
-    #   file:
-    #     path: /var/lib/docker/volumes
-    #     state: directory
-    #     mode: 0755
-
-    # - name: Ensure docker volume is mounted as tmpfs
-    #   mount:
-    #     name: /var/lib/docker/volumes
-    #     src: tmpfs
-    #     fstype: tmpfs
-    #     opts: rw,size=512M
-    #     state: mounted

@@ -4,9 +4,9 @@
 ---
   - name: AWS CloudWatch Agent
     hosts: all
-    gather_facts: False
+    gather_facts: false
     remote_user: ubuntu
-    become: yes
+    become: true
     tasks:
       - name: Download CloudWatch agent debian package
         get_url: url="https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb"
@@ -22,7 +22,7 @@
       - name: Add cwagent user to adm group
         user:
           name: cwagent
-          append: yes
+          append: true
           groups: adm
 
       - name: Copy AWS CloudWatch configuratio file
@@ -34,7 +34,7 @@
 
       - name: Verify AWS CloudWatch Agent Config for EC2
         command: /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/home/ubuntu/amazon-cloudwatch-agent.json
-        become: yes
+        become: true
 
       - name: start and enable cwa-agent service
         service: name=amazon-cloudwatch-agent state=started enabled=yes
